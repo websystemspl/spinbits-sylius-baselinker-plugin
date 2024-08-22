@@ -14,7 +14,7 @@ namespace Spinbits\SyliusBaselinkerPlugin\Controller;
 use Spinbits\SyliusBaselinkerPlugin\RequestHandler;
 use Spinbits\SyliusBaselinkerPlugin\Rest\Input;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
