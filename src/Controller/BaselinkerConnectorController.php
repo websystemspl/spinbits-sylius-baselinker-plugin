@@ -11,13 +11,14 @@ declare(strict_types=1);
 
 namespace Spinbits\SyliusBaselinkerPlugin\Controller;
 
-use Spinbits\SyliusBaselinkerPlugin\RequestHandler;
-use Spinbits\SyliusBaselinkerPlugin\Rest\Input;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Psr\Container\ContainerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Spinbits\SyliusBaselinkerPlugin\Rest\Input;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Spinbits\SyliusBaselinkerPlugin\RequestHandler;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Spinbits\SyliusBaselinkerPlugin\Handler\FileVersionActionHandler;
 
 final class BaselinkerConnectorController extends AbstractController
 {
@@ -45,9 +46,14 @@ final class BaselinkerConnectorController extends AbstractController
 
         /** @var array<string, mixed> $input */
         $input = $request->request->all();
-        $input = new Input($input);
-        $response = $this->requestHandler->handle($input);
 
-        return new JsonResponse($response->content(), $response->code() < 100 ? 500 : $response->code());
+        //handle baselinker test connection
+        if(empty($input)) {
+            return new JsonResponse((new FileVersionActionHandler())->handle(new Input($input)), 200);
+        } else {
+            $input = new Input($input);
+            $response = $this->requestHandler->handle($input);
+            return new JsonResponse($response->content(), $response->code() < 100 ? 500 : $response->code());
+        }
     }
 }
