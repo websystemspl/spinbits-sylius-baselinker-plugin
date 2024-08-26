@@ -40,7 +40,7 @@ use Sylius\Component\Payment\Model\PaymentInterface;
 use Sylius\Component\Payment\PaymentTransitions;
 use Sylius\Component\Payment\Repository\PaymentMethodRepositoryInterface;
 use Sylius\Component\Resource\Factory\Factory;
-use Sylius\Bundle\CoreBundle\Factory\OrderFactory;
+use Sylius\Bundle\CoreBundle\Factory\OrderFactoryInterface as OrderFactory;
 use Sylius\Component\Core\Factory\AddressFactory;
 use Webmozart\Assert\Assert;
 
