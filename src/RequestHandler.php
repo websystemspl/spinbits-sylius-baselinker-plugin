@@ -51,7 +51,6 @@ class RequestHandler
 
             return new Response($handler->handle($input));
         } catch (Exception $e) {
-            dd($e->getMessage()); 
             return new ResponseError($e->getMessage(), $e->getCode());
         }
     }
