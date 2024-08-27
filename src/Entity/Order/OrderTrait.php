@@ -13,6 +13,7 @@ trait OrderTrait
      *
      * @ORM\Column(name="baselinker_order_id", type="string", nullable=true, length=32)
      */
+    #[ORM\Column(type: 'string', nullable: true, name: 'baselinker_order_id', length: 32)]
     private ?string $baselinkerOrderId = null;
 
     /**
