@@ -70,7 +70,7 @@ Follow the steps to install the plugin on your Sylius application:
                 classes:
                     repository: App\Repository\ProductRepository
     ```
-5. Import trait to your OrdertRepository entity: `src/Repository/OrderRepository.php`
+5. Import trait to your OrderRepository entity: `src/Repository/OrderRepository.php`
     ```
     use Spinbits\SyliusBaselinkerPlugin\Repository\BaseLinkerOrderRepositoryInterface;
     use Spinbits\SyliusBaselinkerPlugin\Repository\OrderRepositoryTrait;
