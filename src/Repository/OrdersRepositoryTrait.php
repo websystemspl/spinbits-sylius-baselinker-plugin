@@ -12,16 +12,17 @@ declare(strict_types=1);
 
 namespace Spinbits\SyliusBaselinkerPlugin\Repository;
 
-use Spinbits\SyliusBaselinkerPlugin\Filter\AbstractFilter;
-use Spinbits\SyliusBaselinkerPlugin\Filter\PageOnlyFilter;
-use Spinbits\SyliusBaselinkerPlugin\Filter\PaginatorFilterInterface;
-use Spinbits\SyliusBaselinkerPlugin\Filter\ProductDataFilter;
-use Pagerfanta\Doctrine\ORM\QueryAdapter;
-use Pagerfanta\Exception\LessThan1CurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\QueryBuilder;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Sylius\Component\Core\Model\PaymentInterface;
+use Pagerfanta\Exception\LessThan1CurrentPageException;
+use Spinbits\SyliusBaselinkerPlugin\Filter\AbstractFilter;
+use Spinbits\SyliusBaselinkerPlugin\Filter\PageOnlyFilter;
 use Spinbits\SyliusBaselinkerPlugin\Filter\OrderListFilter;
+use Spinbits\SyliusBaselinkerPlugin\Filter\ProductDataFilter;
+use Spinbits\SyliusBaselinkerPlugin\Filter\PaginatorFilterInterface;
 
 trait OrdersRepositoryTrait
 {
@@ -31,7 +32,6 @@ trait OrdersRepositoryTrait
     public function fetchBaseLinkerData(OrderListFilter $filter): Pagerfanta
     {
         $queryBuilder = $this->prepareBaseLinkerQueryBuilder($filter);
-        $queryBuilder->andWhere('o.enabled = true');
         $this->applyFilters($queryBuilder, $filter);
 
         return $this->appendPaginator($filter, $queryBuilder);
@@ -43,7 +43,7 @@ trait OrdersRepositoryTrait
 
         $queryBuilder
             ->distinct()
-            ->andWhere(':channel MEMBER OF o.channels')
+            ->andWhere(':channel = o.channel')
             ->setParameter('channel', $filter->getChannel());
 
         return $queryBuilder;
@@ -90,21 +90,22 @@ trait OrdersRepositoryTrait
     private function filterTimeFrom(QueryBuilder $queryBuilder, int $timeFrom): void
     {
         $queryBuilder
-            ->andWhere('created_at >= FROM_UNIXTIME(:timeFrom)')
+            ->andWhere('o.createdAt >= FROM_UNIXTIME(:timeFrom)')
             ->setParameter('timeFrom', $timeFrom);
     }
 
     private function filterByIdFrom(QueryBuilder $queryBuilder, int $idFrom): void
     {
         $queryBuilder
-            ->andWhere('id >= :idFrom')
+            ->andWhere('o.id >= :idFrom')
             ->setParameter('idFrom', $idFrom);
     }
 
     private function filterOnlyPaid(QueryBuilder $queryBuilder): void
     {
         $queryBuilder
-            ->andWhere('payment_status = "completed"');
+            ->andWhere('o.paymentState = :completed_state')
+            ->setParameter('completed_state', PaymentInterface::STATE_COMPLETED);
     }
 
     private function filterByIds(QueryBuilder $queryBuilder, array $ids): void
