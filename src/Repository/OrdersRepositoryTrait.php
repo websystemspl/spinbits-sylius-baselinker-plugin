@@ -23,7 +23,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\QueryBuilder;
 use Spinbits\SyliusBaselinkerPlugin\Filter\OrderListFilter;
 
-trait OrderRepositoryTrait
+trait OrdersRepositoryTrait
 {
     private bool $pricingsJoined = false;
     private bool $translationsJoined = false;
