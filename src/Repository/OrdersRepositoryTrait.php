@@ -44,6 +44,7 @@ trait OrdersRepositoryTrait
         $queryBuilder
             ->distinct()
             ->andWhere(':channel = o.channel')
+            ->andWhere('o.checkoutCompletedAt IS NOT NULL')
             ->setParameter('channel', $filter->getChannel());
 
         return $queryBuilder;
@@ -89,9 +90,11 @@ trait OrdersRepositoryTrait
 
     private function filterTimeFrom(QueryBuilder $queryBuilder, int $timeFrom): void
     {
+        $dateTimeFrom = (new \DateTime())->setTimestamp($timeFrom);
+    
         $queryBuilder
-            ->andWhere('o.createdAt >= FROM_UNIXTIME(:timeFrom)')
-            ->setParameter('timeFrom', $timeFrom);
+            ->andWhere('o.checkoutCompletedAt >= :timeFrom')
+            ->setParameter('timeFrom', $dateTimeFrom);
     }
 
     private function filterByIdFrom(QueryBuilder $queryBuilder, int $idFrom): void
