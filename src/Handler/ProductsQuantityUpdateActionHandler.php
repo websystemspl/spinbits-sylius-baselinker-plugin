@@ -1,34 +1,59 @@
 <?php
 
-/**
- * @author Marcin Hubert <hubert.m.j@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
-namespace Spinbits\SyliusBaselinkerPlugin\Model;
+namespace Spinbits\SyliusBaselinkerPlugin\Handler;
 
 use Spinbits\SyliusBaselinkerPlugin\Rest\Input;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Spinbits\SyliusBaselinkerPlugin\Model\ProductsQuantityUpdateModel;
+use Spinbits\SyliusBaselinkerPlugin\Service\ProductsQuantityUpdateService;
 
-class ProductsQuantityUpdateModel
+class ProductsQuantityUpdateActionHandler implements HandlerInterface
 {
-    private array $productQuantityUpdateModels;
+    private ValidatorInterface $validator;
+    private ProductsQuantityUpdateService $productsQuantityUpdateService;
 
-    public function __construct(Input $input)
+    public function __construct(ValidatorInterface $validator, ProductsQuantityUpdateService $productsQuantityUpdateService)
     {
-        $this->productQuantityUpdateModels = [];
-        foreach($input->get('products') as $productData) {
-            if(isset($productData['variant_id']) && isset($productData['quantity']) && isset($productData['operation'])) {
-                $this->productQuantityUpdateModels[] = new ProductQuantityUpdateModel($productData['product_id'], $productData['variant_id'], $productData['quantity'], $productData['operation']);
-            }
-        }
+        $this->validator = $validator;
+        $this->productsQuantityUpdateService = $productsQuantityUpdateService;
     }
 
-    public function getProductQuantityUpdateModels(): array
+    /**
+     * @param Input $input
+     * @return array
+     * @throws InvalidArgumentException
+     */
+    public function handle(Input $input): array
     {
-        return $this->productQuantityUpdateModels;
+        $input = new ProductsQuantityUpdateModel($input);
+        $result = $this->validator->validate($input);
+        $this->assertIsValid($result);
+
+        $numberOfUpdatedProducts = $this->productsQuantityUpdateService->updateProductsQuantity($input);
+
+        return ['counter' => $numberOfUpdatedProducts];
+    }
+
+    /**
+     * @param ConstraintViolationListInterface $result
+     *
+     * @throws InvalidArgumentException
+     */
+    private function assertIsValid(ConstraintViolationListInterface $result): void
+    {
+        if (count($result) < 1) {
+            return;
+        }
+
+        $errors = [];
+        /** @var ConstraintViolation[] $result */
+        foreach ($result as $violation) {
+            $errors[] = $violation->getPropertyPath() . ": " . $violation->getMessage();
+        }
+
+        throw new \InvalidArgumentException('validation failed: ' . implode("; ", $errors));
     }
 }
