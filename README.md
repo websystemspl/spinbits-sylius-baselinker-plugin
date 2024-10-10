@@ -70,12 +70,32 @@ Follow the steps to install the plugin on your Sylius application:
                 classes:
                     repository: App\Repository\ProductRepository
     ```
-
-5. Set Baselinker password: `.env`
+5. Import trait to your OrderRepository entity: `src/Repository/OrderRepository.php`
+    ```
+    use Spinbits\SyliusBaselinkerPlugin\Repository\BaseLinkerOrderRepositoryInterface;
+    use Spinbits\SyliusBaselinkerPlugin\Repository\OrderRepositoryTrait;
+    use Sylius\Bundle\CoreBundle\Doctrine\ORM\OrderRepository as BaseOrderRepository;
+    
+    class OrderRepository extends BaseOrderRepository implements BaseLinkerOrderRepositoryInterface
+    {
+        use OrderRepositoryTrait;
+    }
+    
+    ```
+   
+   Make sure there is repository replace with your namespace in `config/packages/_sylius.yaml` 
+   ```yaml
+    sylius_order:
+        resources:
+            order:
+                classes:
+                    repository: App\Repository\OrderRepository
+    ```
+6. Set Baselinker password: `.env`
     ```
     BASELINKER_PASSWORD='example-password'
     ```
-6. Imports Plugin XML config file:
+7. Imports Plugin XML config file:
     ```
         <imports>
             <import resource="@SpinbitsSyliusBaselinkerPlugin/Resources/services.xml"/>
@@ -86,7 +106,7 @@ Follow the steps to install the plugin on your Sylius application:
     imports:
         - { resource: '../vendor/spinbits/sylius-baselinker-plugin/src/Resources/config/services.xml' }
    ```
-7. Run migrations:
+8. Run migrations:
     `bin/console doctrine:migrations:migrate`
 
 ## Test plugin:

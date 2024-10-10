@@ -7,6 +7,7 @@
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\FileVersionActionHandler" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\OrderAddActionHandler" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\OrderUpdateActionHandler" autowire="true" autoconfigure="true"/>
+        <service id="Spinbits\SyliusBaselinkerPlugin\Handler\OrdersGetActionHandler" autowire="true" autoconfigure="true"/>        
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\ProductPricesActionHandler" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\ProductQuantityActionHandler" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\ProductsCategoriesActionHandler" autowire="true" autoconfigure="true"/>
@@ -14,7 +15,8 @@
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\ProductsListActionHandler" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\StatusesListActionHandler" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Handler\SupportedMethodsActionHandler" autowire="true" autoconfigure="true"/>
-
+        <service id="Spinbits\SyliusBaselinkerPlugin\Handler\DeliveryMethodsListActionHandler" autowire="true" autoconfigure="true"/>
+        <service id="Spinbits\SyliusBaselinkerPlugin\Handler\PaymentMethodsListActionHandler" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Service\OrderCreateService" autowire="true" autoconfigure="true">
             <argument key="$orderItemFactory" type="service" id="sylius.custom_factory.order_item"/>
             <argument key="$addressFactory" type="service" id="sylius.custom_factory.address"/>
@@ -23,9 +25,12 @@
         <service id="Spinbits\SyliusBaselinkerPlugin\Service\OrderUpdateService" autowire="true" autoconfigure="true">
             <argument key="$stateMachineFactory" type="service" id="sm.factory"/>
         </service>
+        <service id="Spinbits\SyliusBaselinkerPlugin\Service\ProductsQuantityUpdateService" autowire="true" autoconfigure="true"/>
+        <service id="Spinbits\SyliusBaselinkerPlugin\Handler\ProductsQuantityUpdateActionHandler" autowire="true" autoconfigure="true"/>
 
         <service id="Spinbits\SyliusBaselinkerPlugin\Mapper\ProductMapper" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Mapper\ListProductMapper" autowire="true" autoconfigure="true"/>
+        <service id="Spinbits\SyliusBaselinkerPlugin\Mapper\ListOrderMapper" autowire="true" autoconfigure="true"/>
 
         <service id="Spinbits\SyliusBaselinkerPlugin\RequestHandler">
             <argument key="$password" type="string">%env(BASELINKER_PASSWORD)%</argument>
@@ -40,6 +45,10 @@
             <call method="registerHandler">
                 <argument type="string">OrderUpdate</argument>
                 <argument type="service" id="Spinbits\SyliusBaselinkerPlugin\Handler\OrderUpdateActionHandler" />
+            </call>
+            <call method="registerHandler">
+                <argument type="string">OrdersGet</argument>
+                <argument type="service" id="Spinbits\SyliusBaselinkerPlugin\Handler\OrdersGetActionHandler" />
             </call>
             <call method="registerHandler">
                 <argument type="string">ProductsPrices</argument>
@@ -69,6 +78,22 @@
                 <argument type="string">SupportedMethods</argument>
                 <argument type="service" id="Spinbits\SyliusBaselinkerPlugin\Handler\SupportedMethodsActionHandler" />
             </call>
+            <call method="registerHandler">
+                <argument type="string">DeliveryMethodsList</argument>
+                <argument type="service" id="Spinbits\SyliusBaselinkerPlugin\Handler\DeliveryMethodsListActionHandler" />
+            </call>
+            <call method="registerHandler">
+                <argument type="string">PaymentMethodsList</argument>
+                <argument type="service" id="Spinbits\SyliusBaselinkerPlugin\Handler\PaymentMethodsListActionHandler" />
+            </call>
+            <call method="registerHandler">
+                <argument type="string">ProductsQuantityUpdate</argument>
+                <argument type="service" id="Spinbits\SyliusBaselinkerPlugin\Handler\ProductsQuantityUpdateActionHandler" />
+            </call>
         </service>
     </services>
 </container>
+<!-- unsupported:
+ProductAdd
+CategoryAdd
+ProductsPriceUpdate -->
