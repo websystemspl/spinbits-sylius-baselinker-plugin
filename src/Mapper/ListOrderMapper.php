@@ -50,7 +50,7 @@ class ListOrderMapper
             'user_comments_long' => $order->getNotes()??'',
             'admin_comments' => '',
             //'status_id' => $order->getCheckoutState(),
-            'status_id' => 1,
+            'status_id' => "1",
             'delivery_method_id' => $order->getShipments()?->first() ? $order->getShipments()?->first()?->getMethod()?->getId() : 0,
             'delivery_method' => $order->getShipments()?->first() ? $order->getShipments()?->first()?->getMethod()?->getName() : '',
             'delivery_price' => $order->getShipments()?->first() ? $order->getShipments()?->first()?->getAdjustmentsTotal() : 0,
