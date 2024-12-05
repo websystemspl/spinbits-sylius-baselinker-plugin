@@ -56,7 +56,7 @@ class ListOrderMapper
             'paid' => $order->getPaymentState() === 'completed' ? 1 : 0,
             'paid_time' => $order->getUpdatedAt()?->format('Y-m-d H:i:s'),
             'want_invoice' => false,
-            'extra_field_1' => $order->getSubscriptionId(),
+            'extra_field_1' => $order->getSubscriptionId()->getId(),
             'extra_field_2' => '',
             'products' => []
         ];
