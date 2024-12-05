@@ -32,7 +32,7 @@ class ListOrderMapper
             'invoice_country' => $order->getBillingAddress()?->getCountryCode()??'',
             'invoice_country_code' => $order->getBillingAddress()?->getCountryCode()??'',
             'invoice_nip' => $order->getBillingAddress()?->getVatNumber()??'',
-            'delivery_point_id' => '',
+            'delivery_point_id' => $order->getInpostPoint(),
             'delivery_point_name' => '',
             'delivery_point_address' => '',
             'delivery_point_postcode' => '',
@@ -56,7 +56,7 @@ class ListOrderMapper
             'paid' => $order->getPaymentState() === 'completed' ? 1 : 0,
             'paid_time' => $order->getUpdatedAt()?->format('Y-m-d H:i:s'),
             'want_invoice' => false,
-            'extra_field_1' => '',
+            'extra_field_1' => $order->getSubscriptionId(),
             'extra_field_2' => '',
             'products' => []
         ];
