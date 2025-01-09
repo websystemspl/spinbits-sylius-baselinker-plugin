@@ -49,10 +49,10 @@ class OrdersGetActionHandler implements HandlerInterface
         $return = [];
         /** @var Order[] $paginator */
         foreach ($paginator as $order) {
-            $return[(int) $order->getId()] = $this->mapper->map($order, $channel);
+            $return[$order->getNumber()] = $this->mapper->map($order, $channel);
         }
         /** @var Pagerfanta $paginator */
-        $return['pages'] = $paginator->getNbPages();
+        // $return['pages'] = $paginator->getNbPages();
         return  $return;
     }
 }

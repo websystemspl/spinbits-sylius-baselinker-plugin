@@ -56,7 +56,7 @@ class ProductsDataActionHandler implements HandlerInterface
             }
         }
         /** @var Pagerfanta $paginator */
-        $return['pages'] = $paginator->getNbPages();
+        // $return['pages'] = $paginator->getNbPages();
         return $return;
     }
 }

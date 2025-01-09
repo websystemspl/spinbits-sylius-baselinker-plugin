@@ -20,9 +20,10 @@ class ProductsQuantityUpdateModel
     public function __construct(Input $input)
     {
         $this->productQuantityUpdateModels = [];
-        foreach($input->get('products') as $productData) {
+        $products = json_decode($input->get('products'), true);
+        foreach($products as $productData) {
             if(isset($productData['variant_id']) && isset($productData['quantity']) && isset($productData['operation'])) {
-                $this->productQuantityUpdateModels[] = new ProductQuantityUpdateModel($productData['variant_id'], intval($productData['quantity']), $productData['operation']);
+                $this->productQuantityUpdateModels[] = new ProductQuantityUpdateModel(strval( $productData['variant_id']), intval($productData['quantity']), $productData['operation']);
             }
         }
     }
