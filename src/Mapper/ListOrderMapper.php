@@ -8,6 +8,7 @@ namespace Spinbits\SyliusBaselinkerPlugin\Mapper;
 use Sylius\Component\Core\Model\Order;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
+use Sylius\Component\Core\OrderPaymentStates;
 
 class ListOrderMapper
 {
@@ -50,11 +51,11 @@ class ListOrderMapper
             'user_comments_long' => $order->getNotes()??'',
             'admin_comments' => '',
             //'status_id' => $order->getCheckoutState(),
-            'status_id' => 2,
+            'status_id' => '2',
             'delivery_method_id' => $order->getShipments()?->first() ? $order->getShipments()?->first()?->getMethod()?->getId() : 0,
             'delivery_method' => $order->getShipments()?->first() ? $order->getShipments()?->first()?->getMethod()?->getName() : '',
-            'delivery_price' => $order->getShipments()?->first() ? $order->getShipments()?->first()?->getAdjustmentsTotal() : 0,
-            'paid' => $order->getPaymentState() === 'completed' ? 1 : 0,
+            'delivery_price' => round(intval($order->getShipments()?->first() ? $order->getShipments()?->first()?->getAdjustmentsTotal() : 0) / 100,2),
+            'paid' => $order->getPaymentState() === OrderPaymentStates::STATE_PAID ? 1 : 0,
             'paid_time' => $order->getUpdatedAt()?->getTimestamp(),
             'want_invoice' => 0,
             'extra_field_1' => $order->getSubscriptionId()?->getId()??'',
