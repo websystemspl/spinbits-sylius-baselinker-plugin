@@ -12,15 +12,18 @@ declare(strict_types=1);
 
 namespace Spinbits\SyliusBaselinkerPlugin\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
-use SM\Factory\FactoryInterface as StateMachineFactory;
-use Spinbits\SyliusBaselinkerPlugin\Model\OrderUpdateModel;
-use Sylius\Bundle\CoreBundle\Doctrine\ORM\OrderRepository;
-use Sylius\Component\Core\Model\OrderInterface;
-use Sylius\Component\Core\Model\PaymentInterface;
-use Sylius\Component\Order\OrderTransitions;
-use Sylius\Component\Payment\PaymentTransitions;
 use Webmozart\Assert\Assert;
+use Doctrine\ORM\EntityManagerInterface;
+use Sylius\Component\Order\OrderTransitions;
+use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Payment\PaymentTransitions;
+use Sylius\Component\Core\Model\PaymentInterface;
+use Sylius\Component\Core\OrderPaymentTransitions;
+use Sylius\Component\Shipping\ShipmentTransitions;
+use Sylius\Component\Core\OrderShippingTransitions;
+use SM\Factory\FactoryInterface as StateMachineFactory;
+use Sylius\Bundle\CoreBundle\Doctrine\ORM\OrderRepository;
+use Spinbits\SyliusBaselinkerPlugin\Model\OrderUpdateModel;
 
 class OrderUpdateService
 {
@@ -44,7 +47,7 @@ class OrderUpdateService
         /** @var int|string $orderId */
         foreach ($inputData->getOrdersIds() as $orderId) {
             /** @var OrderInterface|null $order */
-            $order = $this->orderRepository->find($orderId);
+            $order = $this->orderRepository->findOneBy(['number' => $orderId]);
             Assert::isInstanceOf($order, OrderInterface::class, sprintf("Order %s was not found", (string) $orderId));
 
             $orders[] = $this->updateOrder($order, $inputData);
@@ -52,7 +55,6 @@ class OrderUpdateService
 
         return $orders;
     }
-
 
     private function updateOrder(OrderInterface $order, OrderUpdateModel $inputData): OrderInterface
     {
@@ -94,12 +96,46 @@ class OrderUpdateService
     private function updateOrderStatus(OrderInterface $order, string $updateValue): void
     {
         $orderStateMachine = $this->stateMachineFactory->get($order, OrderTransitions::GRAPH);
+        $orderShippingStateMachine = $this->stateMachineFactory->get($order, OrderShippingTransitions::GRAPH);
+        $orderPaymentStateMachine = $this->stateMachineFactory->get($order, OrderPaymentTransitions::GRAPH);
+
+        $paymentStateMachine = $this->stateMachineFactory->get($order->getLastPayment(), PaymentTransitions::GRAPH);
+        $shipmentStateMachine = $this->stateMachineFactory->get($order->getShipments()->last(), ShipmentTransitions::GRAPH);
 
         switch ($updateValue) {
-            case OrderInterface::STATE_CANCELLED:
+            case "1": // set order to new
+                if ($orderStateMachine->can(OrderTransitions::TRANSITION_CREATE)) {
+                    $orderStateMachine->apply(OrderTransitions::TRANSITION_CREATE);
+                }
+                break;
+            case "2": // set order payment to paid
+                if ($orderPaymentStateMachine->can(OrderPaymentTransitions::TRANSITION_PAY)) {
+                    $orderPaymentStateMachine->apply(OrderPaymentTransitions::TRANSITION_PAY);
+                }
+                if ($paymentStateMachine->can(PaymentTransitions::TRANSITION_COMPLETE)) {
+                    $paymentStateMachine->apply(PaymentTransitions::TRANSITION_COMPLETE);
+                }
+                break;
+            case "3": // set set order to shipped
+                if ($orderShippingStateMachine->can(OrderShippingTransitions::TRANSITION_SHIP)) {
+                    $orderShippingStateMachine->apply(OrderShippingTransitions::TRANSITION_SHIP);
+                }
+                if ($shipmentStateMachine->can(ShipmentTransitions::TRANSITION_SHIP)) {
+                    $shipmentStateMachine->apply(ShipmentTransitions::TRANSITION_SHIP);
+                }
+                break;
+            case "4": // set shipping to delivered
+                if ($orderShippingStateMachine->can('deliver')) {
+                    $orderShippingStateMachine->apply('deliver');
+                }
+                if ($shipmentStateMachine->can('deliver')) {
+                    $shipmentStateMachine->apply('deliver');
+                }                
+                break;
+            case "5": // set order to cancelled
                 if ($orderStateMachine->can(OrderTransitions::TRANSITION_CANCEL)) {
                     $orderStateMachine->apply(OrderTransitions::TRANSITION_CANCEL);
-                }
+                } // ????
                 break;
             default:
                 break;

@@ -59,7 +59,7 @@ class ListOrderMapper
             'paid_time' => $order->getUpdatedAt()?->getTimestamp(),
             'want_invoice' => 0,
             'extra_field_1' => $order->getSubscriptionId()?->getId()??'',
-            'extra_field_2' => '',
+            'extra_field_2' => $order->getShippingState(),
             'products' => []
         ];
         foreach($order->getItems() as $item) {
