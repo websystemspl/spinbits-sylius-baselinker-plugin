@@ -30,8 +30,13 @@ class ProductsQuantityUpdateService
         /** @var ProductQuantityUpdateModel $productQuantityUpdateModel */
         foreach ($productsQuantityUpdateModel->getProductQuantityUpdateModels() as $productQuantityUpdateModel) {
             /** @var ProductVariantInterface|null $product */
-            $product = $this->productVariantRepository->find($productQuantityUpdateModel->getVariantId());
-            Assert::isInstanceOf($product, ProductVariantInterface::class, sprintf("Product %s was not found", (string) $productQuantityUpdateModel->getVariantId()));
+            if('0' === $productQuantityUpdateModel->getVariantId()) {
+                $product = $this->productVariantRepository->findOneBy(['product' => $productQuantityUpdateModel->getProductId()]);
+                Assert::isInstanceOf($product, ProductVariantInterface::class, sprintf("Product %s was not found", (string) $productQuantityUpdateModel->getProductId()));
+            } else {
+                $product = $this->productVariantRepository->find($productQuantityUpdateModel->getVariantId());
+                Assert::isInstanceOf($product, ProductVariantInterface::class, sprintf("Product variant %s was not found", (string) $productQuantityUpdateModel->getVariantId()));
+            }
 
             $updatedProductNumber += ($this->updateProductQuantity($product, $productQuantityUpdateModel) ? 1 : 0);
         }

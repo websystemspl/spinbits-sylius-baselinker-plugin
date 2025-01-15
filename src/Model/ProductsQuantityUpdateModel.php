@@ -22,8 +22,8 @@ class ProductsQuantityUpdateModel
         $this->productQuantityUpdateModels = [];
         $products = json_decode($input->get('products'), true);
         foreach($products as $productData) {
-            if(isset($productData['variant_id']) && isset($productData['quantity']) && isset($productData['operation'])) {
-                $this->productQuantityUpdateModels[] = new ProductQuantityUpdateModel(strval( $productData['variant_id']), intval($productData['quantity']), $productData['operation']);
+            if(isset($productData['product_id']) && isset($productData['variant_id']) && isset($productData['quantity']) && isset($productData['operation'])) {
+                $this->productQuantityUpdateModels[] = new ProductQuantityUpdateModel(strval( $productData['product_id']), strval( $productData['variant_id']), intval($productData['quantity']), $productData['operation']);
             }
         }
     }
