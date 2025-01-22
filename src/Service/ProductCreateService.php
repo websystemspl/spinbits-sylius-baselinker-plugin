@@ -14,6 +14,7 @@ namespace Spinbits\SyliusBaselinkerPlugin\Service;
 
 use App\Entity\Channel\Channel;
 use App\Entity\Product\Product;
+use App\Entity\Product\ProductTaxon;
 use App\Entity\Taxation\TaxCategory;
 use App\Entity\Channel\ChannelPricing;
 use App\Entity\Product\ProductVariant;
@@ -64,11 +65,18 @@ class ProductCreateService
             $translation->setSlug(strval($slugger->slug($productAddModel->getName())));
             $translation->setDescription($productAddModel->getName());
             $product->addTranslation($translation);
+            $this->entityManager->persist($product);
+
             if(($taxon = $this->taxonRepository->findOneBy(['code' => $productAddModel->getCategoryCode()])) !== null) {
-                $product->addProductTaxon($taxon);
+                $productTaxon = new ProductTaxon();
+                $productTaxon->setProduct($product);
+                $productTaxon->setTaxon($taxon);
+                $this->entityManager->persist($productTaxon);
+                
+                $product->setMainTaxon($taxon);    
+                $this->entityManager->persist($product);
             }
 
-            $this->entityManager->persist($product);
 
             $productVariant = new ProductVariant();
             $productVariant->setCode($productAddModel->getSku());
