@@ -28,7 +28,7 @@ class ProductAddModel
     private float $length;
     private float $width;
     private string $description;
-    private int $category_id;
+    private string $category_code;
     // private string $description_extra1;
     // private string $description_extra2;
     // private string $description_extra3;
@@ -53,7 +53,7 @@ class ProductAddModel
         $this->length = (float) $input->get('length');
         $this->width = (float) $input->get('width');
         $this->description = (string) $input->get('description');
-        $this->category_id = (int) $input->get('category_id');
+        $this->category_code = (string) $input->get('category_id');
         // $this->description_extra1 = (string) $input->get('description_extra1');
         // $this->description_extra2 = (string) $input->get('description_extra2');
         // $this->description_extra3 = (string) $input->get('description_extra3');
@@ -175,12 +175,12 @@ class ProductAddModel
     }
 
     /**
-     * Get the value of category_id
+     * Get the value of category_code
      *
      * @return mixed
      */
-    public function getCategoryId(): int
+    public function getCategoryCode(): string
     {
-        return $this->category_id;
+        return $this->category_code;
     }
 }

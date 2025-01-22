@@ -23,6 +23,7 @@ use App\Entity\Shipping\ShippingCategory;
 use App\Entity\Product\ProductTranslation;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Spinbits\SyliusBaselinkerPlugin\Model\ProductAddModel;
+use Sylius\Bundle\CoreBundle\Doctrine\ORM\ProductTaxonRepository;
 use Sylius\Bundle\CoreBundle\Doctrine\ORM\ProductVariantRepository;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository as TaxRateRepository;
 
@@ -30,15 +31,18 @@ class ProductCreateService
 {
     private EntityManagerInterface $entityManager;
     private ProductVariantRepository $productVariantRepository;
+    private ProductTaxonRepository $productTaxonRepository;
     private TaxRateRepository $taxRateRepository;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         ProductVariantRepository $productVariantRepository,
+        ProductTaxonRepository $productTaxonRepository,
         TaxRateRepository $taxRateRepository
     ) {
         $this->entityManager = $entityManager;
         $this->productVariantRepository = $productVariantRepository;
+        $this->productTaxonRepository = $productTaxonRepository;
         $this->taxRateRepository = $taxRateRepository;
     }
 
@@ -52,7 +56,7 @@ class ProductCreateService
             $product->setUpdatedAt(new \DateTime());
             $product->setColor('');
             $product->addChannel($this->entityManager->getReference(Channel::class, 1));
-            $product->addProductTaxon($this->entityManager->getReference(ProductTaxon::class, $productAddModel->getCategoryId()));
+            
 
             $slugger = new AsciiSlugger();
             $translation = new ProductTranslation();
@@ -61,6 +65,9 @@ class ProductCreateService
             $translation->setSlug(strval($slugger->slug($productAddModel->getName())));
             $translation->setDescription($productAddModel->getName());
             $product->addTranslation($translation);
+            if(($productTaxon = $this->productTaxonRepository->findOneBy(['code' => $productAddModel->getCategoryCode()])) !== null) {
+                $product->addProductTaxon($productTaxon);
+            }
 
             $this->entityManager->persist($product);
 
