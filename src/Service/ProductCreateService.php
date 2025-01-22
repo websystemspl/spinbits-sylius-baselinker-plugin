@@ -13,17 +13,16 @@ declare(strict_types=1);
 namespace Spinbits\SyliusBaselinkerPlugin\Service;
 
 use App\Entity\Channel\Channel;
+use App\Entity\Product\Product;
 use App\Entity\Taxation\TaxCategory;
 use App\Entity\Channel\ChannelPricing;
 use App\Entity\Product\ProductVariant;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\Product\Product;
-use App\Entity\Product\ProductTaxon;
 use App\Entity\Shipping\ShippingCategory;
+use App\Repository\Taxon\TaxonRepository;
 use App\Entity\Product\ProductTranslation;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Spinbits\SyliusBaselinkerPlugin\Model\ProductAddModel;
-use Sylius\Bundle\CoreBundle\Doctrine\ORM\ProductTaxonRepository;
 use Sylius\Bundle\CoreBundle\Doctrine\ORM\ProductVariantRepository;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository as TaxRateRepository;
 
@@ -31,18 +30,18 @@ class ProductCreateService
 {
     private EntityManagerInterface $entityManager;
     private ProductVariantRepository $productVariantRepository;
-    private ProductTaxonRepository $productTaxonRepository;
+    private TaxonRepository $taxonRepository;
     private TaxRateRepository $taxRateRepository;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         ProductVariantRepository $productVariantRepository,
-        ProductTaxonRepository $productTaxonRepository,
+        TaxonRepository $taxonRepository,
         TaxRateRepository $taxRateRepository
     ) {
         $this->entityManager = $entityManager;
         $this->productVariantRepository = $productVariantRepository;
-        $this->productTaxonRepository = $productTaxonRepository;
+        $this->taxonRepository = $taxonRepository;
         $this->taxRateRepository = $taxRateRepository;
     }
 
@@ -65,8 +64,8 @@ class ProductCreateService
             $translation->setSlug(strval($slugger->slug($productAddModel->getName())));
             $translation->setDescription($productAddModel->getName());
             $product->addTranslation($translation);
-            if(($productTaxon = $this->productTaxonRepository->findOneBy(['code' => $productAddModel->getCategoryCode()])) !== null) {
-                $product->addProductTaxon($productTaxon);
+            if(($taxon = $this->taxonRepository->findOneBy(['code' => $productAddModel->getCategoryCode()])) !== null) {
+                $product->addProductTaxon($taxon);
             }
 
             $this->entityManager->persist($product);
