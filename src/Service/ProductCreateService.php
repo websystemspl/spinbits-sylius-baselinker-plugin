@@ -18,6 +18,7 @@ use App\Entity\Channel\ChannelPricing;
 use App\Entity\Product\ProductVariant;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Product\Product;
+use App\Entity\Product\ProductTaxon;
 use App\Entity\Shipping\ShippingCategory;
 use App\Entity\Product\ProductTranslation;
 use Symfony\Component\String\Slugger\AsciiSlugger;
@@ -51,6 +52,7 @@ class ProductCreateService
             $product->setUpdatedAt(new \DateTime());
             $product->setColor('');
             $product->addChannel($this->entityManager->getReference(Channel::class, 1));
+            $product->addProductTaxon($this->entityManager->getReference(ProductTaxon::class, $productAddModel->getCategoryId()));
 
             $slugger = new AsciiSlugger();
             $translation = new ProductTranslation();
