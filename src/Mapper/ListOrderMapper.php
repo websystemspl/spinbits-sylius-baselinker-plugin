@@ -43,7 +43,7 @@ class ListOrderMapper
             'date_add' => $order->getCreatedAt()?->getTimestamp(),
             'payment_method_id' => $order->getPayments()?->first() ? strval($order->getPayments()?->first()->getMethod()?->getId()) : "0",
             'payment_method' => $order->getPayments()?->first() ? $order->getPayments()?->first()?->getMethod()?->getName() : '',
-            'payment_method_cod' => $order->getPayments()?->first() ? boolval($order->getPayments()?->first()?->getMethod()?->getCod()) : false,
+            'payment_method_cod' => $order->getPayments()?->first() ? intval($order->getPayments()?->first()?->getMethod()?->getCod()) : 0,
             'payment_external_id' => '',
             'payment_operator' => '',
             'currency' => $order->getPayments()?->first() ? $order->getPayments()?->first()?->getCurrencyCode() : '',
