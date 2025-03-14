@@ -69,7 +69,7 @@ class ListOrderMapper
                 'quantity' => $item->getQuantity(),
                 'price' => $this->getPrice($item->getVariant(), $channel),
                 'weight' => $item->getVariant()?->getWeight(),
-                'tax' => $item->getVariant()?->getTaxCategory()?->getRates()?->first()?->getAmount()??0,
+                'tax' => $item->getVariant()?->getTaxCategory()?->getRates()?->first()?->getAmount() * 100??0,
                 'ean' => '',
                 'sku' => $item->getVariant()?->getCode(),
                 'location' => 'default',
