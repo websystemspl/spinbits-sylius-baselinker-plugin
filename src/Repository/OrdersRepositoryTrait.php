@@ -77,9 +77,12 @@ trait OrdersRepositoryTrait
         if ($filter->hasIdFrom()) {
             $this->filterByIdFrom($queryBuilder, (int) $filter->getIdFrom());
         }
+
         if ($filter->hasOnlyPaid() && (bool) $filter->getOnlyPaid()) {
             $this->filterOnlyPaid($queryBuilder);
         }
+
+        $this->filterOnlyNonLegacy($queryBuilder);
     }
 
     private function filterById(QueryBuilder $queryBuilder, string $id): void
@@ -95,6 +98,11 @@ trait OrdersRepositoryTrait
         $queryBuilder
             ->andWhere('o.checkoutCompletedAt >= :timeFrom')
             ->setParameter('timeFrom', $dateTimeFrom);
+    }
+
+    private function filterOnlyNonLegacy(QueryBuilder $queryBuilder): void
+    {
+        $this->filterTimeFrom($queryBuilder, 1742295163);//18.03.2025 11:55
     }
 
     private function filterByIdFrom(QueryBuilder $queryBuilder, int $idFrom): void
