@@ -67,7 +67,7 @@ class ListOrderMapper
                 'variant_id' => strval($item->getVariant()?->getId()),
                 'name' => $item->getVariant()?->getProduct()?->getName(),
                 'quantity' => $item->getQuantity(),
-                'price' => $this->getPrice($item->getVariant(), $channel),
+                'price' => $this->getPrice($item->getVariant(), $channel, $order->getIsSubscription()),
                 'weight' => $item->getVariant()?->getWeight(),
                 'tax' => ($item->getVariant()?->getTaxCategory()?->getRates()?->first()?->getAmount() * 100) ?? 0,
                 'ean' => '',
@@ -79,8 +79,12 @@ class ListOrderMapper
         return $mapped;
     }
 
-    private function getPrice(ProductVariantInterface $variant, ChannelInterface $channel): float
+    private function getPrice(ProductVariantInterface $variant, ChannelInterface $channel, bool $isSubscription): float
     {
-        return round(intval($variant->getChannelPricingForChannel($channel)?->getPrice()) / 100, 2);
+        if($isSubscription) {
+            return round(intval($variant->getChannelPricingForChannel($channel)?->getSubscriptionPrice()) / 100, 2);
+        } else {
+            return round(intval($variant->getChannelPricingForChannel($channel)?->getPrice()) / 100, 2);
+        }
     }
 }
