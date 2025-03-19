@@ -53,7 +53,7 @@ class ListOrderMapper
             'status_id' => $order->getState(),
             'delivery_method_id' => $order->getShipments()?->first() ? $order->getShipments()?->first()?->getMethod()?->getId() : 0,
             'delivery_method' => $order->getShipments()?->first() ? $order->getShipments()?->first()?->getMethod()?->getName() : '',
-            'delivery_price' => round(intval($order->getShipments()?->first() ? $order->getShipments()?->first()?->getAdjustmentsTotal() : 0) / 100,2),
+            'delivery_price' => $order->getShipments()?->first() ?  round($order->getShipments()?->first()?->getAdjustmentsTotal()/100, 2) : 0,
             'paid' => $order->getPaymentState() === OrderPaymentStates::STATE_PAID ? 1 : 0,
             'paid_time' => $order->getUpdatedAt()?->getTimestamp(),
             'want_invoice' => 0,
@@ -67,7 +67,7 @@ class ListOrderMapper
                 'variant_id' => strval($item->getVariant()?->getId()),
                 'name' => $item->getVariant()?->getProduct()?->getName(),
                 'quantity' => $item->getQuantity(),
-                'price' => $this->getPrice($item->getVariant(), $channel, $order->getIsSubscription()),
+                'price' => round($item->getFullDiscountedUnitPrice()/ 100, 2),
                 'weight' => $item->getVariant()?->getWeight(),
                 'tax' => ($item->getVariant()?->getTaxCategory()?->getRates()?->first()?->getAmount() * 100) ?? 0,
                 'ean' => '',
@@ -77,14 +77,5 @@ class ListOrderMapper
             ];
         }
         return $mapped;
-    }
-
-    private function getPrice(ProductVariantInterface $variant, ChannelInterface $channel, bool $isSubscription): float
-    {
-        if($isSubscription) {
-            return round(intval($variant->getChannelPricingForChannel($channel)?->getSubscriptionPrice()) / 100, 2);
-        } else {
-            return round(intval($variant->getChannelPricingForChannel($channel)?->getPrice()) / 100, 2);
-        }
     }
 }
