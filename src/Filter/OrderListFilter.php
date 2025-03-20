@@ -18,7 +18,7 @@ class OrderListFilter extends AbstractFilter implements PaginatorFilterInterface
 {
     public function getLimit(): int
     {
-        $limit = (int) $this->get('filter_limit', 100);
+        $limit = (int) $this->get('filter_limit', 1000);
 
         if ($limit > 200) {
             return 200;

@@ -52,7 +52,7 @@ class OrdersGetActionHandler implements HandlerInterface
             $return[$order->getNumber()] = $this->mapper->map($order, $channel);
         }
         /** @var Pagerfanta $paginator */
-        // $return['pages'] = $paginator->getNbPages();
+        $return['pages'] = $paginator->getNbPages();
         return  $return;
     }
 }
