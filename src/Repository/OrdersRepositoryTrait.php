@@ -88,8 +88,6 @@ trait OrdersRepositoryTrait
         if ($filter->hasOnlyPaid() && (bool) $filter->getOnlyPaid()) {
             $this->filterOnlyPaid($queryBuilder);
         }
-
-        $this->filterOnlyNonLegacy($queryBuilder);
     }
 
     private function filterById(QueryBuilder $queryBuilder, string $id): void
