@@ -70,8 +70,15 @@ trait OrdersRepositoryTrait
             $this->filterById($queryBuilder, (string) $filter->getId());
         }
 
+        $nonLegacyTimestamp = 1742295163;//18.03.2025 11:55
         if ($filter->hasTimeFrom()) {
-            $this->filterTimeFrom($queryBuilder, (int) $filter->getTimeFrom());
+            $requestedTimeFrom = (int) $filter->getTimeFrom();
+            if($requestedTimeFrom < $nonLegacyTimestamp) {
+                $requestedTimeFrom = $nonLegacyTimestamp;
+            }
+            $this->filterTimeFrom($queryBuilder, $requestedTimeFrom);
+        } else {
+            $this->filterTimeFrom($queryBuilder, $nonLegacyTimestamp);
         }
 
         if ($filter->hasIdFrom()) {
@@ -98,11 +105,6 @@ trait OrdersRepositoryTrait
         $queryBuilder
             ->andWhere('o.checkoutCompletedAt >= :timeFrom')
             ->setParameter('timeFrom', $dateTimeFrom);
-    }
-
-    private function filterOnlyNonLegacy(QueryBuilder $queryBuilder): void
-    {
-        $this->filterTimeFrom($queryBuilder, 1742295163);//18.03.2025 11:55
     }
 
     private function filterByIdFrom(QueryBuilder $queryBuilder, int $idFrom): void
