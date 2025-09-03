@@ -105,6 +105,12 @@ trait OrdersRepositoryTrait
             ->setParameter('timeFrom', $dateTimeFrom);
     }
 
+    private function filterOnlyNonLegacy(QueryBuilder $queryBuilder): void
+    {
+        //$this->filterTimeFrom($queryBuilder, 1742295163);//18.03.2025 11:55
+        $this->filterByIdFrom($queryBuilder, 78060);
+    }
+
     private function filterByIdFrom(QueryBuilder $queryBuilder, int $idFrom): void
     {
         $queryBuilder
