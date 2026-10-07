@@ -19,6 +19,7 @@ use Spinbits\SyliusBaselinkerPlugin\Rest\Input;
 use Spinbits\SyliusBaselinkerPlugin\Rest\Response;
 use Spinbits\SyliusBaselinkerPlugin\Rest\ResponseError;
 use Spinbits\SyliusBaselinkerPlugin\Rest\ResponseInterface;
+use Spinbits\SyliusBaselinkerPlugin\Security\ConnectorPasswordProviderInterface;
 use Exception;
 
 class RequestHandler
@@ -28,14 +29,11 @@ class RequestHandler
     /** @var HandlerInterface[] */
     private array $handlers = [];
 
-    private string $password;
+    private ConnectorPasswordProviderInterface $passwordProvider;
 
-    /**
-     * @param string $password
-     */
-    public function __construct(string $password)
+    public function __construct(ConnectorPasswordProviderInterface $passwordProvider)
     {
-        $this->password = $password;
+        $this->passwordProvider = $passwordProvider;
     }
 
     /**
@@ -93,7 +91,11 @@ class RequestHandler
         if (null === $input->password()) {
             throw new InvalidArgumentException("Missing password parameter");
         }
-        if ($input->password() !== $this->password) {
+        $password = $this->passwordProvider->getPassword();
+        if (null === $password) {
+            throw new ForbiddenException("Connector password is not configured");
+        }
+        if (!hash_equals($password, (string) $input->password())) {
             throw new ForbiddenException("Wrong password");
         }
     }

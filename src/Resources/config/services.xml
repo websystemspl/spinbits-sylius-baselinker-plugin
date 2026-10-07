@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <!-- Connector passwords per channel code (one BaseLinker shop connection per channel); unlisted channels use BASELINKER_PASSWORD -->
+        <parameter key="spinbits_sylius_baselinker.channel_passwords" type="collection"/>
+    </parameters>
+
     <services>
         <service id="Spinbits\SyliusBaselinkerPlugin\Controller\BaselinkerConnectorController" autowire="true" autoconfigure="true" public="true" />
 
@@ -36,8 +41,15 @@
         <service id="Spinbits\SyliusBaselinkerPlugin\Mapper\ListProductMapper" autowire="true" autoconfigure="true"/>
         <service id="Spinbits\SyliusBaselinkerPlugin\Mapper\ListOrderMapper" autowire="true" autoconfigure="true"/>
 
+        <service id="Spinbits\SyliusBaselinkerPlugin\Security\ChannelConnectorPasswordProvider">
+            <argument key="$channelContext" type="service" id="sylius.context.channel"/>
+            <argument key="$defaultPassword" type="string">%env(BASELINKER_PASSWORD)%</argument>
+            <argument key="$channelPasswords">%spinbits_sylius_baselinker.channel_passwords%</argument>
+        </service>
+        <service id="Spinbits\SyliusBaselinkerPlugin\Security\ConnectorPasswordProviderInterface" alias="Spinbits\SyliusBaselinkerPlugin\Security\ChannelConnectorPasswordProvider"/>
+
         <service id="Spinbits\SyliusBaselinkerPlugin\RequestHandler">
-            <argument key="$password" type="string">%env(BASELINKER_PASSWORD)%</argument>
+            <argument key="$passwordProvider" type="service" id="Spinbits\SyliusBaselinkerPlugin\Security\ConnectorPasswordProviderInterface"/>
             <call method="registerHandler">
                 <argument type="string">FileVersion</argument>
                 <argument type="service" id="Spinbits\SyliusBaselinkerPlugin\Handler\FileVersionActionHandler" />
